@@ -1,0 +1,6 @@
+{
+  "name": "PhoneFinder - Secure Cross-Platform Phone Recovery",
+  "description": "Production-oriented cross-platform phone recovery system to locate, manage, and recover lost Android and iOS devices securely with live and last-known location reporting.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

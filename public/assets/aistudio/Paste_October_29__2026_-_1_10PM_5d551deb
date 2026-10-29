@@ -1,0 +1,1133 @@
+# MASTER SOFTWARE DEVELOPMENT PROMPT: PHONEFINDER
+
+## 1. YOUR ROLE
+
+Act as a senior software architect, full-stack engineer, cross-platform mobile developer, cybersecurity engineer, UI/UX designer, database engineer, QA engineer, and DevOps specialist.
+
+Your responsibility is to design and build a production-oriented, cross-platform phone recovery system called **PhoneFinder**.
+
+Do not treat this as a basic coding exercise, static UI mockup, school project, or landing page.
+
+Build a functional application with a coherent frontend, backend, database, authentication system, location-management infrastructure, recovery workflows, security controls, error handling, automated tests, and deployment documentation.
+
+Make reasonable technical decisions independently instead of repeatedly asking me to choose between technologies.
+
+However, do not invent capabilities that cannot be implemented using available operating-system APIs, documented third-party integrations, and legitimate device-finding services.
+
+If a requested capability requires additional platform approval, hardware, credentials, native development, or third-party infrastructure, identify the dependency and implement the strongest working alternative.
+
+Do not claim that a feature works merely because its button, screen, or API endpoint exists.
+
+## 2. PRODUCT VISION
+
+PhoneFinder is a secure phone recovery platform that helps people locate, manage, and recover their lost Android phones and iPhones.
+
+The application should enable a verified device owner to:
+
+1. Register and securely manage their devices.
+2. View a device's current location when an authorized location source is available.
+3. Retrieve the last known location when a device becomes unreachable.
+4. Understand when the device last reported its location.
+5. View location history when history collection was enabled and authorized.
+6. Receive appropriate notifications when a registered device becomes reachable or reports a new location.
+7. Access supported recovery actions.
+8. Protect their account and devices against unauthorized access.
+9. Understand the limitations of each location result.
+10. Manage their privacy, location retention, and device permissions.
+
+The system must support Android and iOS users through an appropriate cross-platform architecture.
+
+The web dashboard must also work on desktop and mobile browsers.
+
+### Product principles
+
+- Real functionality over visual demonstrations.
+- Security and privacy by default.
+- Transparent reporting of location freshness and uncertainty.
+- Minimal collection of personal data.
+- No unauthorized tracking.
+- No false claims about device recovery.
+- Clear handling of errors and unavailable services.
+- Maintainable, testable, modular code.
+- Production deployment must require explicit configuration and security checks.
+
+## 3. TECHNICAL REALITY AND NON-NEGOTIABLE CONSTRAINTS
+
+Before implementing the application, evaluate the technical feasibility of every recovery capability.
+
+The system must distinguish between these states:
+
+A. Online with a fresh location.
+B. Online without a usable location.
+C. Offline with a previously recorded location.
+D. Offline without a previously recorded location.
+E. Switched off.
+F. Location permission denied.
+G. Location services disabled.
+H. Device application uninstalled or no longer reporting.
+I. Location source unavailable or integration unsupported.
+
+Do not treat these states as interchangeable.
+
+### Live location
+
+Obtain location from a properly authorized device application or a supported official integration.
+
+A location must include its source, collection timestamp, and reported accuracy when available.
+
+### Last-known location
+
+Store the last valid location received from an authorized source.
+
+Display its timestamp prominently.
+
+Never label an old location as the device's current location.
+
+### Offline operation
+
+The mobile application should securely preserve appropriate location records locally when connectivity is unavailable, subject to the owner's settings and operating-system restrictions.
+
+When connectivity returns, it may synchronize permitted records with the backend.
+
+The application should clearly explain that a location update cannot reach the server while the device has no usable communication channel.
+
+### Switched-off devices
+
+Do not promise that the application can obtain a new GPS location from a completely switched-off device.
+
+Investigate documented, legitimate integrations with existing platform device-finding services.
+
+Do not assume those services expose public APIs for arbitrary third-party applications.
+
+If no authorized integration exists, show the last known location and explain the limitation.
+
+### iOS limitations
+
+Respect Apple's background-execution rules, location permissions, privacy requirements, and application distribution policies.
+
+Do not assume an ordinary iOS application can run continuously in the background or execute arbitrary commands while offline.
+
+### Android limitations
+
+Respect Android location permissions, background location restrictions, battery optimization, foreground-service requirements, and Google Play policies.
+
+Do not use accessibility services, device administration, or other privileged capabilities to bypass user consent.
+
+### IP addresses
+
+IP geolocation may be used only as supplementary network information.
+
+Never present an IP-derived estimate as precise GPS location.
+
+Do not use an IP address to claim that the phone has been physically located.
+
+### IMEI and phone numbers
+
+Do not implement unauthorized IMEI tracking, telecommunications-network tracking, SIM surveillance, or phone-number-based geolocation.
+
+Explain that these identifiers do not independently provide an ordinary application with access to a phone's GPS coordinates.
+
+### Recovery commands
+
+Remote ringing, locking, or other device-management commands must only be implemented where the target operating system and documented APIs support them.
+
+If an action cannot be performed by PhoneFinder, provide instructions for using the appropriate official device-recovery service.
+
+Never display a successful result for an action that was not actually executed.
+
+## 4. SYSTEM ARCHITECTURE
+
+Design PhoneFinder as a modular system consisting of the following components.
+
+### Component A: Web dashboard
+
+Build a responsive web application for:
+
+- Registration and login.
+- Account verification.
+- Device management.
+- Recovery dashboard.
+- Interactive map.
+- Location history.
+- Notifications.
+- Security settings.
+- Privacy controls.
+- Recovery instructions.
+- Subscription and billing readiness.
+- Help and support.
+
+### Component B: Mobile applications
+
+Provide a cross-platform mobile architecture for Android and iOS.
+
+Prefer Flutter with Dart for the native companion application if the available development environment supports it.
+
+The mobile application should contain:
+
+- Account authentication.
+- Device registration.
+- Permission onboarding.
+- Location collection.
+- Secure location reporting.
+- Local storage for permitted unsynchronized records.
+- Connectivity monitoring.
+- Synchronization when connectivity returns.
+- Location-reporting settings.
+- Device status.
+- Battery and permission diagnostics where available.
+- Secure logout and device deregistration.
+- Clear background-location disclosures.
+
+If the current Google AI Studio environment cannot generate or execute the native Flutter applications, do not pretend that a web application is equivalent to a native application.
+
+Instead:
+
+1. Build the working web application and backend.
+2. Define documented APIs for the native applications.
+3. Generate the mobile application's source code or a separate implementation scaffold if the environment permits.
+4. Document any components that require a separate Flutter development environment.
+5. Provide the exact integration steps.
+6. Do not mark native-only features as complete until implemented and tested.
+
+### Component C: Backend API
+
+Prefer Python with FastAPI if a Python backend can be deployed in the available environment.
+
+Alternatively, use a supported full-stack architecture that can be implemented and deployed reliably.
+
+The backend must handle:
+
+- Authentication and authorization.
+- Device registration.
+- Device ownership verification.
+- Location ingestion.
+- Location history.
+- Device status.
+- Recovery requests.
+- Notifications.
+- Privacy settings.
+- Audit events.
+- Data retention.
+- Rate limiting.
+- Integration with supported services.
+
+All privileged operations must be validated on the server.
+
+### Component D: Database
+
+Use PostgreSQL for a conventional backend deployment, or Firebase/Firestore if the selected environment provides a better supported integration.
+
+Do not introduce multiple databases unnecessarily.
+
+The database must enforce access boundaries between users and their devices.
+
+### Component E: Mapping
+
+Use Google Maps or another properly licensed mapping provider.
+
+Store API keys in appropriate configuration and restrict client-side keys by application, website, and permitted API where supported.
+
+Do not expose server-side secrets in browser code.
+
+If a map provider is unavailable, provide a graceful fallback with coordinates, timestamps, and a map link rather than displaying a broken map.
+
+### Component F: Notification service
+
+Create an abstraction for push notifications and email notifications.
+
+Use supported services such as Firebase Cloud Messaging for eligible push-notification use cases and a properly configured email provider for email notifications.
+
+Account for the differences between Android and iOS push-notification delivery.
+
+Do not guarantee delivery.
+
+## 5. USER ROLES AND ACCESS CONTROL
+
+Implement the following roles.
+
+### Regular user
+
+Can:
+
+- Manage their own account.
+- Register supported devices.
+- View their own device locations.
+- Review permitted location history.
+- Configure recovery alerts.
+- Manage privacy settings.
+- Remove their own registered devices.
+- Export or delete their data, subject to applicable retention and legal requirements.
+
+### Support administrator
+
+Can manage operational issues and review appropriate system health information.
+
+Administrative access must not automatically expose every user's precise location history.
+
+### System administrator
+
+Can manage application configuration, operational health, service integrations, and account-support workflows.
+
+Sensitive administrative actions must require appropriate permissions and generate audit records.
+
+Use role-based access control and server-side authorization.
+
+Never rely on hiding buttons in the frontend as a security mechanism.
+
+## 6. AUTHENTICATION AND ACCOUNT SECURITY
+
+Implement:
+
+- Secure account registration.
+- Email verification.
+- Secure login.
+- Password reset.
+- Session management.
+- Logout.
+- Account deletion.
+- Device-session management.
+- Optional multi-factor authentication where supported.
+- Reauthentication for sensitive operations.
+- Rate limiting for authentication endpoints.
+- Protection against brute-force attempts.
+- Secure cookie or token handling appropriate to the architecture.
+- CSRF protection where applicable.
+- Strict CORS configuration.
+- Security headers.
+- Input validation.
+- Output encoding.
+- Protection against common web application vulnerabilities.
+
+Use an established authentication provider or a secure, well-maintained authentication library.
+
+Do not implement your own password-hashing or cryptographic algorithms.
+
+Passwords must never be stored in plaintext.
+
+Do not hardcode credentials, production secrets, API keys, or signing keys.
+
+Use environment variables or an appropriate secrets-management service.
+
+## 7. DEVICE REGISTRATION AND OWNERSHIP
+
+Implement a secure device registration workflow.
+
+The workflow should:
+
+1. Authenticate the user.
+2. Register a device using an appropriate installation or device identifier.
+3. Verify that the device is associated with the authenticated account.
+4. Request only necessary permissions.
+5. Explain the purpose of background location access.
+6. Confirm that required permissions and services are available.
+7. Begin location reporting only when properly authorized.
+8. Display the device's registration and reporting status.
+
+Do not use an IMEI, phone number, advertising ID, or other sensitive identifier as an unrestricted tracking key.
+
+Use a random application-level device identifier where appropriate.
+
+Device ownership must be enforced by the backend.
+
+Implement device revocation and secure deregistration.
+
+## 8. LOCATION COLLECTION AND DATA MODEL
+
+Define a consistent location record with fields such as:
+
+- Location record ID.
+- User ID.
+- Registered device ID.
+- Latitude.
+- Longitude.
+- Reported accuracy in metres, if available.
+- Device-generated observation timestamp.
+- Server-received timestamp.
+- Location source.
+- Permission status where relevant.
+- Relevant quality indicators.
+- Synchronization status.
+
+Validate latitude and longitude ranges.
+
+Reject malformed coordinates.
+
+Reject records that are inconsistent with the device's authorization or timestamp requirements.
+
+Protect against unauthorized location injection and replayed requests.
+
+Do not automatically discard an older valid location merely because a delayed synchronization request arrives.
+
+Use explicit rules for determining the latest valid observation.
+
+Treat device-generated timestamps cautiously because the device clock may be inaccurate.
+
+Use the server's receipt timestamp to help assess freshness.
+
+### Location source types
+
+Support explicit source labels, such as:
+
+- GPS or device location services.
+- Network-assisted device location.
+- Authorized third-party integration.
+- IP-derived estimate, if implemented.
+
+Never combine these source types without explaining the difference.
+
+## 9. LOCATION STATUS AND FRESHNESS
+
+Create a central service that determines the status displayed for each device.
+
+A device's status must not be inferred solely from whether a database record exists.
+
+Use actual reporting events, application heartbeats where appropriate, connectivity information when available, and operating-system limitations.
+
+The interface should distinguish:
+
+- Live location.
+- Recently reported location.
+- Last known location.
+- Stale location.
+- Location unavailable.
+- Permission required.
+- Integration unavailable.
+
+Use configurable freshness thresholds.
+
+Display the actual last-reported timestamp rather than relying only on labels such as "recent."
+
+When the application cannot confirm a phone's current power state, display "Last contact unknown" or an equivalent honest status instead of asserting that the phone is switched off.
+
+## 10. CORE APPLICATION SCREENS
+
+Build the following screens as functional parts of the application.
+
+### Screen 1: Landing page
+
+Include:
+
+- Product name and logo treatment.
+- Clear explanation of PhoneFinder.
+- Primary call to action.
+- Features.
+- Privacy and security information.
+- Platform limitations.
+- FAQ.
+- Contact and support.
+- Footer.
+
+Avoid exaggerated promises such as "Find any phone anywhere, even when completely switched off."
+
+### Screen 2: Registration
+
+Include:
+
+- Name.
+- Email.
+- Password.
+- Password confirmation where applicable.
+- Acceptance of terms and privacy policy.
+- Validation messages.
+- Email verification.
+
+Collect only information that is genuinely necessary.
+
+### Screen 3: Login
+
+Include:
+
+- Email and password.
+- Password reset.
+- Verification feedback.
+- Secure error handling.
+
+Do not reveal whether an arbitrary email address belongs to an existing account through detailed error messages.
+
+### Screen 4: User dashboard
+
+Display:
+
+- Number of registered devices.
+- Devices currently reporting.
+- Devices with a last-known location.
+- Devices requiring attention.
+- Recent recovery events.
+- Recent location updates.
+- Security alerts.
+
+Only show information belonging to the authenticated user.
+
+### Screen 5: Device list
+
+For each device, show:
+
+- User-defined device name.
+- Platform.
+- Registration status.
+- Last reporting time.
+- Location freshness.
+- Permission or integration warnings.
+- Available recovery actions.
+
+### Screen 6: Device recovery page
+
+Include:
+
+- Interactive map.
+- Last known coordinates.
+- Location accuracy where available.
+- Location source.
+- Last-reported timestamp.
+- Device reporting status.
+- Location history.
+- Refresh action.
+- Supported recovery actions.
+- Official platform recovery instructions when necessary.
+
+Do not simulate live updates when no location data has arrived.
+
+### Screen 7: Location history
+
+Include:
+
+- A chronological list of recorded locations.
+- Timestamps.
+- Map markers.
+- Optional route visualization.
+- Appropriate date filters.
+- Clear indication of missing data.
+
+Only show history that the user is authorized to access.
+
+### Screen 8: Alerts
+
+Allow users to configure supported alerts for events such as:
+
+- A new location report.
+- A device beginning to report after an interruption.
+- A device requiring renewed permission.
+- A security-related account event.
+
+Do not infer that a phone has physically moved or changed hands merely because a new network connection appears.
+
+### Screen 9: Privacy settings
+
+Include:
+
+- Location-reporting controls.
+- Location-history settings.
+- Data retention settings where configurable.
+- Notification preferences.
+- Connected devices.
+- Session management.
+- Data export.
+- Account deletion.
+- Consent management.
+
+Explain the consequences of disabling location reporting.
+
+### Screen 10: Help and recovery guidance
+
+Provide step-by-step instructions for:
+
+- A phone with an active internet connection.
+- A phone that has stopped reporting.
+- A phone without internet connectivity.
+- A phone that may be switched off.
+- A phone with location permissions disabled.
+- A phone that may have been stolen.
+
+Link to the official Android and Apple recovery services where appropriate.
+
+Do not collect another service's password or ask users to disclose authentication codes.
+
+## 11. ADVANCED RECOVERY FEATURES
+
+Implement the following features where technically supported.
+
+### A. Last-known-location recovery
+
+Retrieve the most recent valid location record and display its freshness and source.
+
+### B. Location history
+
+Maintain a configurable history of authorized location reports.
+
+Apply data retention limits and support user deletion.
+
+### C. Recovery notifications
+
+Notify the owner when a new valid location arrives, subject to their notification preferences and platform capabilities.
+
+### D. Connectivity recovery
+
+Allow the native application to synchronize permitted queued records after connectivity returns.
+
+Use bounded retries and exponential backoff.
+
+Prevent duplicate records during synchronization.
+
+### E. Remote ringing
+
+Implement only through a documented, authorized mechanism.
+
+If PhoneFinder cannot execute the action, explain the limitation and provide a link to the appropriate official recovery service.
+
+### F. Remote lock
+
+Do not claim that an ordinary consumer application can universally lock any Android phone or iPhone.
+
+Implement a supported integration only if the relevant API, authorization, and platform permissions permit it.
+
+Otherwise, provide official recovery instructions.
+
+### G. Offline discovery research module
+
+Create a clearly labelled roadmap or integration interface for evaluating legitimate offline-finding capabilities.
+
+Investigate:
+
+- Documented Android device-finding capabilities.
+- Apple's supported Find My mechanisms and developer restrictions.
+- Bluetooth Low Energy discovery where appropriate.
+- Participating-device networks.
+- Cryptographic identifiers.
+- Relay-device privacy.
+- Anti-stalking protections.
+- Battery impact.
+- Platform-specific limitations.
+
+Do not invent an API for Apple's or Google's internal device-finding networks.
+
+Do not secretly enlist nearby phones to track a device.
+
+Do not implement covert surveillance or tracking without the device owner's informed consent.
+
+If offline discovery is not implementable in the current environment, leave it clearly marked as an integration requiring further research and platform authorization.
+
+### H. SIM or network changes
+
+Do not claim to detect SIM replacement unless a legitimate, documented mechanism is available.
+
+Where supported by authorized device events, record the event and notify the owner.
+
+Otherwise, explain the limitation.
+
+## 12. DATABASE DESIGN
+
+Design an appropriate normalized database or document model.
+
+Consider the following entities:
+
+1. Users.
+2. User preferences.
+3. Registered devices.
+4. Device authorization records.
+5. Location records.
+6. Notification preferences.
+7. Notification delivery records.
+8. Recovery requests.
+9. Security audit events.
+10. Integration configurations.
+11. Subscription records, if billing is implemented.
+
+Include:
+
+- Primary keys.
+- Foreign keys where applicable.
+- Appropriate indexes.
+- Unique constraints.
+- Creation and update timestamps.
+- Ownership relationships.
+- Data retention policies.
+- Deletion behavior.
+- Migration scripts.
+
+Avoid unnecessary storage of exact locations.
+
+Use database transactions where appropriate.
+
+If PostgreSQL is selected, provide schema migrations and indexes for location retrieval.
+
+If Firebase is selected, implement appropriate Security Rules and validate privileged operations in trusted server environments.
+
+Never depend on frontend filtering to isolate users' records.
+
+## 13. BACKEND API DESIGN
+
+Create versioned, documented API endpoints.
+
+Design appropriate routes for:
+
+- Authentication integration.
+- User profile management.
+- Device registration.
+- Device listing.
+- Device deregistration.
+- Location reporting.
+- Latest location retrieval.
+- Location-history retrieval.
+- Device status.
+- Notification preferences.
+- Recovery requests.
+- Privacy settings.
+- Data export.
+- Account deletion.
+- Health checks.
+
+Use consistent request and response formats.
+
+Validate all request bodies.
+
+Use pagination for historical records.
+
+Implement rate limits appropriate to each endpoint.
+
+Protect sensitive endpoints with authentication and ownership checks.
+
+Return appropriate HTTP status codes and safe error messages.
+
+Document the API with OpenAPI or the documentation mechanism supported by the chosen framework.
+
+Do not create endpoints that return fabricated location data.
+
+## 14. MAP AND LOCATION VISUALIZATION
+
+The map must:
+
+- Display valid coordinates.
+- Distinguish the reported location from any estimated location.
+- Show the time of the observation.
+- Indicate reported accuracy where available.
+- Allow the user to inspect location details.
+- Display historical points only when actual records exist.
+- Handle missing map credentials gracefully.
+- Work on mobile and desktop layouts.
+
+Do not draw a precise movement route between two isolated location reports without indicating that the path is inferred.
+
+Do not present a location accuracy radius as a guarantee that the device lies within that area.
+
+## 15. UI/UX DESIGN REQUIREMENTS
+
+Use a polished, modern, trustworthy design appropriate for a security and device-recovery product.
+
+The visual style should communicate clarity, reliability, and privacy.
+
+Use:
+
+- A responsive layout.
+- Consistent spacing.
+- Readable typography.
+- Clear visual hierarchy.
+- Accessible color contrast.
+- Keyboard navigation.
+- Appropriate loading states.
+- Skeleton loaders where useful.
+- Empty states.
+- Error states.
+- Confirmation dialogs for destructive actions.
+- Toast notifications for noncritical feedback.
+- Accessible labels and semantic HTML.
+- Responsive map controls.
+
+Create a consistent design system with reusable components.
+
+Avoid clutter, excessive animations, unnecessary gradients, and decorative elements that reduce usability.
+
+Make the application usable on smaller Android phones, iPhones, tablets, and desktop browsers.
+
+Provide a functional interface rather than a collection of disconnected screenshots.
+
+## 16. PRIVACY AND CYBERSECURITY
+
+Location data is sensitive personal information.
+
+Implement privacy and security protections throughout the application.
+
+Required safeguards include:
+
+- Explicit informed consent for location reporting.
+- Purpose limitation.
+- Data minimization.
+- TLS for data in transit.
+- Appropriate encryption at rest.
+- Secure authentication.
+- Strict device ownership checks.
+- Server-side authorization.
+- Rate limiting.
+- Input validation.
+- Audit logging.
+- Secure secret management.
+- Protection against unauthorized account access.
+- Protection against location-record injection.
+- Protection against insecure direct object references.
+- Protection against cross-site scripting.
+- CSRF protection where applicable.
+- Safe error messages.
+- Secure account deletion.
+- Configurable retention.
+- Privacy policy and terms-of-service placeholders requiring review before launch.
+
+Do not log passwords, authentication tokens, or unnecessary precise location information.
+
+Restrict staff access to sensitive records.
+
+Audit administrative access to sensitive data.
+
+Ensure location-reporting controls are visible and understandable to the device owner.
+
+Never implement hidden tracking, stealth installation, covert persistence, unauthorized microphone or camera access, or methods intended to bypass the user's consent.
+
+Do not promise absolute security.
+
+Provide a security review checklist before production deployment.
+
+## 17. PRODUCTION READINESS
+
+Do not equate a successful frontend build with a production-ready product.
+
+Implement appropriate support for:
+
+- Separate development and production configuration.
+- Environment variables.
+- Database migrations.
+- Health checks.
+- Structured application logs.
+- Error monitoring integration points.
+- API timeouts.
+- Retry policies.
+- Rate limits.
+- Request validation.
+- Database connection management.
+- Backup and restoration procedures.
+- Dependency updates.
+- Secure deployment configuration.
+- Build and deployment documentation.
+- Privacy and retention configuration.
+- Service integration failure handling.
+
+Add a CI workflow if the selected repository and development environment support it.
+
+Pin and maintain dependencies appropriately.
+
+Do not put secrets in source control.
+
+Do not expose development credentials.
+
+Do not use a development server as the production hosting solution.
+
+Do not claim production readiness until the necessary deployment configuration, tests, security checks, credentials, and external integrations have been completed.
+
+## 18. TESTING REQUIREMENTS
+
+Create meaningful automated tests.
+
+### Unit tests
+
+Test:
+
+- Location validation.
+- Freshness calculations.
+- Device-status determination.
+- Authorization rules.
+- Timestamp handling.
+- Location-history ordering.
+- Retention logic.
+- Input validation.
+
+### Integration tests
+
+Test:
+
+- Registration and authentication integration.
+- Device registration.
+- Location reporting.
+- Location retrieval.
+- Device ownership enforcement.
+- Notification triggering.
+- Database transactions.
+- Data export and deletion.
+
+### Security tests
+
+Test:
+
+- Access to another user's device.
+- Access to another user's location history.
+- Invalid authentication.
+- Expired sessions or tokens.
+- Malformed coordinates.
+- Replayed requests.
+- Unauthorized administrative operations.
+- Rate-limit enforcement.
+
+### Frontend tests
+
+Test:
+
+- Form validation.
+- Loading and error states.
+- Empty states.
+- Device-list rendering.
+- Map fallback behavior.
+- Responsive layouts.
+- Permission-warning displays.
+
+### End-to-end tests
+
+Test the primary workflow:
+
+1. Create a test account.
+2. Register a test device.
+3. Submit a valid test location through an authenticated test client.
+4. Retrieve the location from the same account.
+5. Confirm that another account cannot retrieve it.
+6. Simulate a reporting interruption.
+7. Confirm that the dashboard displays the last known location and its timestamp.
+8. Simulate a new location report.
+9. Confirm that the location and status update correctly.
+10. Deregister the device and verify the expected access and retention behavior.
+
+Use synthetic test coordinates and test accounts.
+
+Never use real people's location information in automated tests.
+
+Do not mark tests as passing unless they have actually run successfully.
+
+## 19. SAMPLE DATA AND DEMONSTRATION MODE
+
+Provide a clearly separated demonstration mode if necessary.
+
+Demonstration data must be synthetic.
+
+Clearly label synthetic locations as examples.
+
+Do not mix demonstration records with production records.
+
+Never make a simulated phone appear to be a real user's device.
+
+Production mode must reject demonstration-only location submissions.
+
+## 20. ERROR HANDLING
+
+Handle errors gracefully, including:
+
+- Network interruption.
+- Server unavailable.
+- Database unavailable.
+- Expired authentication.
+- Invalid location.
+- Location permission denied.
+- Location services disabled.
+- Push notification unavailable.
+- Map API key missing.
+- Device no longer reporting.
+- Unsupported recovery action.
+- Third-party integration unavailable.
+
+Explain what happened and provide a practical next step.
+
+Do not silently swallow critical errors.
+
+Do not return fake success responses.
+
+## 21. DOCUMENTATION
+
+Generate complete project documentation.
+
+Include:
+
+### README
+
+Explain:
+
+- Product purpose.
+- Features.
+- Architecture.
+- Technology stack.
+- Prerequisites.
+- Installation.
+- Environment setup.
+- Local development.
+- Database setup.
+- Test execution.
+- Deployment.
+- Troubleshooting.
+
+### Architecture documentation
+
+Include:
+
+- Component descriptions.
+- Data flow.
+- Authentication flow.
+- Location-reporting flow.
+- Recovery workflow.
+- Database relationships.
+- Trust boundaries.
+- Security considerations.
+
+### API documentation
+
+Describe endpoints, authentication requirements, request schemas, response schemas, and error codes.
+
+### Mobile integration documentation
+
+Explain how the Android and iOS applications obtain permission, report locations, handle connectivity, and integrate with the backend.
+
+### Deployment documentation
+
+Explain hosting, domain configuration, secrets, database migrations, HTTPS, logging, backups, and monitoring.
+
+### Privacy documentation
+
+Explain what data is collected, why it is collected, how it is protected, how long it is retained, and how users can request deletion.
+
+### Limitations document
+
+Clearly list capabilities that depend on platform restrictions, third-party authorization, unavailable integrations, or future development.
+
+## 22. IMPLEMENTATION STRATEGY
+
+Work in the following order.
+
+### Phase 1: Inspect the environment
+
+Determine which frameworks, integrations, backend services, and deployment tools are available.
+
+Identify which parts of the requested architecture can be built and tested in the current environment.
+
+Do not claim access to external accounts or APIs that have not been connected.
+
+### Phase 2: Establish the architecture
+
+Define the application structure, database model, API contracts, security boundaries, and development workflow.
+
+Make the architecture consistent across the frontend, backend, and mobile clients.
+
+### Phase 3: Build the functional foundation
+
+Implement:
+
+- Authentication integration.
+- User dashboard.
+- Device registration.
+- Backend API.
+- Database.
+- Location reporting.
+- Last-known-location retrieval.
+- Location freshness.
+- Device ownership enforcement.
+
+### Phase 4: Build recovery features
+
+Implement:
+
+- Location history.
+- Connectivity-aware synchronization.
+- Notifications.
+- Permission diagnostics.
+- Supported recovery actions.
+- Official recovery-service guidance.
+
+### Phase 5: Complete the mobile clients
+
+Implement or scaffold the native Android and iOS applications.
+
+Ensure that the applications use the actual backend APIs.
+
+Do not substitute simulated location reporting for native location collection in a production build.
+
+### Phase 6: Security and quality assurance
+
+Run available automated tests.
+
+Fix the issues found.
+
+Check authentication, authorization, location privacy, database rules, error handling, and deployment configuration.
+
+### Phase 7: Deployment preparation
+
+Provide the exact configuration and deployment steps.
+
+Identify any remaining external setup requirements.
+
+### Phase 8: Final verification
+
+Produce an implementation report that separates:
+
+- Fully implemented and tested features.
+- Implemented but not fully tested features.
+- Features requiring credentials or external configuration.
+- Features requiring native builds or platform approvals.
+- Features requiring further research.
+- Known limitations.
+
+## 23. WORKING RULES
+
+Follow these rules throughout implementation.
+
+1. Build real, connected application functionality.
+2. Prefer maintainable architecture over unnecessary complexity.
+3. Reuse components where appropriate.
+4. Keep secrets outside source code.
+5. Never fabricate API results.
+6. Never fabricate test results.
+7. Never claim that a phone has been located when no valid location exists.
+8. Never present stale coordinates as current.
+9. Never promise universal offline or switched-off phone tracking.
+10. Never implement unauthorized surveillance.
+11. Do not remove existing working functionality merely to simplify implementation.
+12. Do not leave unfinished primary workflows disguised as completed features.
+13. Use clear types, schemas, validation, and consistent error handling.
+14. If a service requires configuration, explain exactly what is needed.
+15. If a feature is technically impossible in the current environment, implement an honest fallback and document the limitation.
+16. Do not stop after generating the landing page.
+17. Do not stop after designing the database.
+18. Do not stop after producing code snippets; create the actual project files supported by the environment.
+19. Run the available build and test commands.
+20. Prioritize a secure, working end-to-end recovery workflow over a large number of incomplete features.
+
+## 24. REQUIRED DELIVERABLES
+
+At the end of the implementation, provide:
+
+1. A working responsive web application.
+2. A functional backend or clearly documented supported backend implementation.
+3. A database schema and migrations or equivalent database configuration.
+4. Authentication and device-ownership enforcement.
+5. A functional last-known-location workflow.
+6. Location history and freshness indicators.
+7. Notifications where configured and supported.
+8. Mobile application source code or an explicit native implementation scaffold with integration instructions.
+9. API documentation.
+10. Automated tests.
+11. Environment-variable example file without real secrets.
+12. Deployment instructions.
+13. Security checklist.
+14. Privacy documentation.
+15. Known limitations and external dependencies.
+16. A feature-completion report.
+17. A list of the exact commands required to run and test the project.
+
+## 25. FINAL EXECUTION INSTRUCTION
+
+Begin by inspecting the available development environment and selecting the most reliable implementation architecture.
+
+Then build the application in the prescribed order.
+
+Create the actual files, connect the components, run the available tests, and fix discovered errors.
+
+If the environment supports full-stack development, use that capability rather than delivering a frontend-only mockup.
+
+If the environment cannot build native applications, clearly separate the functioning web application from the native application components that require another development environment.
+
+Do not ask me to approve every minor design or implementation decision.
+
+Make sensible engineering decisions and continue until the maximum achievable implementation is complete.
+
+At the end, summarize exactly what works, how to run it, what must be configured before deployment, what has been tested, and which requested features cannot yet be delivered.
+
+**The goal is a credible, secure, extensible phone recovery product—not a demonstration that merely looks complete.**
